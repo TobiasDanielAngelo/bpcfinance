@@ -87,9 +87,9 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
 
-    namespace 'com.layministers.finance'
+    namespace 'com.bpcgenluna.finance'
     defaultConfig {
-        applicationId 'com.layministers.finance'
+        applicationId 'com.bpcgenluna.finance'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1

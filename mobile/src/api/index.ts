@@ -1,7 +1,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { PaginatedResponse } from "../constants/interfaces";
 
-const hostURL = "http://192.168.254.164:8000";
+const hostURL = "https://bpc.mathiavelli.com";
 
 export function autoFormData(body: Record<string, any>) {
   let needsFormData = false;

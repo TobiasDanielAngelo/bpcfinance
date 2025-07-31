@@ -1,4 +1,4 @@
-package com.layministers.finance
+package com.bpcgenluna.finance
 
 import android.os.Build
 import android.os.Bundle

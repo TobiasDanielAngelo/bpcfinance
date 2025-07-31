@@ -1,14 +1,14 @@
 {
   "expo": {
-    "name": "LM Finance",
-    "slug": "lmfinance",
+    "name": "BPC Finance",
+    "slug": "bpcfinance",
     "version": "1.0.0",
     "orientation": "landscape",
-    "icon": "./assets/lmfinance.png",
+    "icon": "./assets/bpcfinance.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "splash": {
-      "image": "./assets/lmfinance.png",
+      "image": "./assets/bpcfinance.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
@@ -17,11 +17,11 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/lmfinance.png",
+        "foregroundImage": "./assets/bpcfinance.png",
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.layministers.finance"
+      "package": "com.bpcgenluna.finance"
     },
     "web": {
       "favicon": "./assets/favicon.png"
