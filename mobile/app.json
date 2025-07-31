@@ -1,0 +1,30 @@
+{
+  "expo": {
+    "name": "LM Finance",
+    "slug": "lmfinance",
+    "version": "1.0.0",
+    "orientation": "landscape",
+    "icon": "./assets/lmfinance.png",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/lmfinance.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/lmfinance.png",
+        "backgroundColor": "#ffffff"
+      },
+      "edgeToEdgeEnabled": true,
+      "package": "com.layministers.finance"
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    }
+  }
+}
