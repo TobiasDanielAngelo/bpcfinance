@@ -144,6 +144,7 @@ export function MyGenericForm<T>({
         onDelete={onPressDelete}
         msg={msg}
         isLoading={isLoading}
+        hasNoAdd
       />
     </View>
   );

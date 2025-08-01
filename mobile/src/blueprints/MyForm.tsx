@@ -178,10 +178,18 @@ export const MyForm = observer(
             )}
           </View>
         ))}
-        <Text style={{ color: "darkred" }}>
-          {getMsg(msg, "nonFieldErrors")}
+        <Text
+          style={{
+            color: "darkred",
+            display:
+              getMsg(msg, "nonFieldErrors") !== "" ||
+              getMsg(msg, "detail") !== ""
+                ? "contents"
+                : "none",
+          }}
+        >
+          {getMsg(msg, "nonFieldErrors")} {getMsg(msg, "detail")}
         </Text>
-        <Text style={{ color: "red" }}>{getMsg(msg, "detail")}</Text>
         <View
           style={{
             flexDirection: "row-reverse",

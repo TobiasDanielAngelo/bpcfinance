@@ -9,6 +9,7 @@ export const EXPENSE_CATEGORY_CHOICES = [
   "Food",
   "Transportation",
   "Repairs/Maintenance",
+  "Allowance for Caretaker",
   "Worship",
   "Evangelization",
   "Service",
@@ -17,6 +18,7 @@ export const EXPENSE_CATEGORY_CHOICES = [
   "Family & Life",
   "Recollection/Seminar",
   "Others",
+  "Payable To",
 ];
 
 const slug = "expenses/";

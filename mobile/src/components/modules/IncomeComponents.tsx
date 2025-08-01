@@ -62,7 +62,7 @@ export const IncomeForm = ({
 
   return (
     <MyGenericForm<IncomeInterface>
-      item={item?.$ ?? { ...item, dateAdded: new Date().toISOString() }}
+      item={item?.$ ?? item}
       setVisible={setVisible}
       fetchFcn={fetchFcn}
       objectName="income"

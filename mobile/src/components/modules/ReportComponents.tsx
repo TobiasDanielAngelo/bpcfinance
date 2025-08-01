@@ -1,6 +1,6 @@
 import { observer } from "mobx-react-lite";
 import moment from "moment";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { useStore } from "../../api/Store";
 import { MyButton, MyDropdownSelector } from "../../blueprints";
@@ -21,6 +21,7 @@ import { MyTable } from "../../blueprints/MyTable";
 import { EXPENSE_CATEGORY_CHOICES } from "../../api/ExpenseStore";
 import { INCOME_CATEGORY_CHOICES } from "../../api/IncomeStore";
 import { MyForm } from "../../blueprints/MyForm";
+import { MyIcon } from "../../blueprints/MyIcon";
 
 const allLines = [
   ["FORM VIII"],
@@ -46,6 +47,7 @@ const allLines = [
   ["Food", "_VAR_EXPFOOD"],
   ["Transportation", "_VAR_EXPTRANS"],
   ["Repairs/Maintenance", "_VAR_EXMAINT"],
+  ["Allowance for Caretaker", "_VAR_EXCARE"],
   ["Committee Expenses"],
   ["Worship", "_VAR_EXPCOMMW"],
   ["Evangelization", "_VAR_EXPCOMME"],
@@ -55,6 +57,7 @@ const allLines = [
   ["Family & Life ", "_VAR_EXPCOMMF"],
   ["Recollection/Seminar", "_VAR_EXPRECOL"],
   ["Others", "_VAR_EXPOTH"],
+  ["Payable to", "_VAR_EXPPAY"],
   ["TOTAL EXPENSES:", "_VAR_TOTEXP"],
   ["Cash Ending Balance/Deficit", "_VAR_ENDBAL"],
   ["Prepared By:", "Checked By:", "Noted By:"],
@@ -62,31 +65,35 @@ const allLines = [
   ["BPC Treasurer", "BPC Auditor", "BPC Chairman"],
 ];
 
-const BOLD_LINE_NUMS = [0, 1, 2, 5, 6, 12, 13, 15, 16, 32, 33];
+const BOLD_LINE_NUMS = [0, 1, 2, 5, 6, 12, 13, 15, 16, 34, 35];
 const CENTER_LINE_NUMS = [0, 1, 2, 3, 4];
-const SPACE_BETWEEN_NUMS = [5, 33, 34, 35, 36];
+const SPACE_BETWEEN_NUMS = [5, 33, 35, 36, 37, 38];
 const ONE_INDENT_NUMS = [
-  7, 8, 9, 10, 11, 17, 18, 19, 20, 21, 22, 23, 24, 30, 31,
+  7, 8, 9, 10, 11, 17, 18, 19, 20, 21, 22, 23, 24, 30, 31, 32, 33,
 ];
-const TWO_INDENT_NUMS = [24, 25, 26, 27, 28, 29];
+const TWO_INDENT_NUMS = [25, 26, 27, 28, 29];
 const FIXED_LEFT1_NUMS = [...ONE_INDENT_NUMS, ...TWO_INDENT_NUMS];
-const FIXED_LEFT2_NUMS = [12, 13, 15, 32];
-const BOTTOM_GAP1_NUMS = [4, 5, 14, 31, 32, 33];
+const FIXED_LEFT2_NUMS = [12, 13, 15, 34];
+const BOTTOM_GAP1_NUMS = [4, 5, 14, 34, 35];
 const BOTTOM_GAP2_NUMS = [0, 11, 15, 33];
-const UNDERLINE_NUMS = [35];
+const UNDERLINE_NUMS = [37];
 
 const isDebug = false;
 
-const EDITABLE_NUMS = [5, ...FIXED_LEFT1_NUMS].filter((s) => ![23].includes(s));
+const EDITABLE_NUMS = [5, ...FIXED_LEFT1_NUMS].filter(
+  (s) => ![12, 13, 15, 24].includes(s)
+);
 
 const VISIBLE_FORM_MAP = [
   ...Array.from(new Set(EDITABLE_NUMS))
     .sort((a, b) => (a > b ? 1 : -1))
     .map((s) => `1-${s}`),
-  "0-35",
-  "1-35",
-  "2-35",
+  "0-37",
+  "1-37",
+  "2-37",
 ];
+
+console.log(VISIBLE_FORM_MAP);
 
 export const FigureForm = (props: {
   title: string;
@@ -211,7 +218,7 @@ export const ReportView = observer(() => {
   const allExpenseItems = expenseStore.items.filter(
     (t) => moment(t.dateAdded, "YYYY-MM-DD").format("YYYY-MM") === String(month)
   );
-  const allExpenses = Array.from(Array(14).keys()).map(
+  const allExpenses = Array.from(Array(16).keys()).map(
     (s) =>
       -mySum(
         allExpenseItems.filter((t) => t.category === s).map((s) => s.amount)
@@ -238,14 +245,16 @@ export const ReportView = observer(() => {
     EXPFOOD: allExpenseAmounts[3],
     EXPTRANS: allExpenseAmounts[4],
     EXMAINT: allExpenseAmounts[5],
-    EXPCOMMW: allExpenseAmounts[6],
-    EXPCOMME: allExpenseAmounts[7],
-    EXPCOMMS1: allExpenseAmounts[8],
-    EXPCOMM2: allExpenseAmounts[9],
-    EXPCOMMY: allExpenseAmounts[10],
-    EXPCOMMF: allExpenseAmounts[11],
-    EXPRECOL: allExpenseAmounts[12],
-    EXPOTH: allExpenseAmounts[13],
+    EXCARE: allExpenseAmounts[6],
+    EXPCOMMW: allExpenseAmounts[7],
+    EXPCOMME: allExpenseAmounts[8],
+    EXPCOMMS1: allExpenseAmounts[9],
+    EXPCOMM2: allExpenseAmounts[10],
+    EXPCOMMY: allExpenseAmounts[11],
+    EXPCOMMF: allExpenseAmounts[12],
+    EXPRECOL: allExpenseAmounts[13],
+    EXPOTH: allExpenseAmounts[14],
+    EXPPAY: allExpenseAmounts[15],
     TOTEXP: totalExpenseAmount,
     ENDBAL: toMoneySpaced(parseFloat(begBal) + totalIncome + totalExpense),
     TREAS: treasurer,
@@ -261,96 +270,124 @@ export const ReportView = observer(() => {
     );
   });
 
-  const AllModals = [
-    <TransferForm setVisible={setVisibleForIndex(1)} />,
-    <IncomeForm setVisible={setVisibleForIndex(2)} />,
-    <ExpenseForm setVisible={setVisibleForIndex(3)} />,
-    <FigureForm
-      title="Cash Beginning Balance"
-      value={begBal}
-      onChangeValue={setBegBal}
-      setVisible={setVisibleForIndex(4)}
-      isNumber
-    />,
-    ...Array.from(Array(5).keys()).map((t, ind) => (
-      <View style={{ flexDirection: "row" }}>
-        <View style={{ width: 300, paddingHorizontal: 10 }}>
-          <Text style={{ fontWeight: "bold" }}>
-            All {INCOME_CATEGORY_CHOICES[t]} Incomes
-          </Text>
-          {allIncomeItems
-            .filter((s) => s.category === t)
-            .map((s, ind) => (
-              <View
-                key={ind}
-                style={{
-                  flexDirection: "row",
-                  justifyContent: "space-between",
-                }}
-              >
-                <Text style={{ width: 80 }}>{s.dateAdded}</Text>
-                <Text style={{ width: 100 }}>
-                  {s.notes === "" ? "-" : s.notes}
-                </Text>
-                <Text style={{ width: 80 }}>{toMoney(-s.amount)}</Text>
-              </View>
-            ))}
+  const AllModals = useMemo(() => {
+    return [
+      <TransferForm setVisible={setVisibleForIndex(1)} />,
+      <IncomeForm setVisible={setVisibleForIndex(2)} />,
+      <ExpenseForm setVisible={setVisibleForIndex(3)} />,
+      <FigureForm
+        title="Cash Beginning Balance"
+        value={begBal}
+        onChangeValue={setBegBal}
+        setVisible={setVisibleForIndex(4)}
+        isNumber
+      />,
+      ...Array.from(Array(5).keys()).map((t, ind) => (
+        <View style={{ flexDirection: "row" }}>
+          <View style={{ width: 300, paddingHorizontal: 10 }}>
+            <Text style={{ fontWeight: "bold" }}>
+              All {INCOME_CATEGORY_CHOICES[t]} Incomes
+            </Text>
+            <View>
+              {allIncomeItems
+                .filter((s) => s.category === t)
+                .map((s, ind) => (
+                  <View
+                    key={ind}
+                    style={{
+                      flexDirection: "row",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                    }}
+                  >
+                    <MyIcon
+                      icon="times"
+                      size={15}
+                      onPress={() => incomeStore.deleteItem(s.id)}
+                    />
+                    <Text style={{ width: 80, paddingLeft: 5 }}>
+                      {s.dateAdded}
+                    </Text>
+                    <Text style={{ width: 100 }}>
+                      {s.notes === "" ? "-" : s.notes}
+                    </Text>
+                    <Text style={{ width: 80 }}>{toMoney(s.amount)}</Text>
+                  </View>
+                ))}
+            </View>
+          </View>
+          <IncomeForm
+            setVisible={setVisibleForIndex(t + 5)}
+            item={{
+              category: t,
+              dateAdded: moment(month, "YYYY-MM").toISOString(),
+            }}
+          />
         </View>
-        <IncomeForm
-          setVisible={setVisibleForIndex(t + 5)}
-          item={{ category: t }}
-        />
-      </View>
-    )),
-    ...Array.from(Array(14).keys()).map((t, ind) => (
-      <View style={{ flexDirection: "row" }}>
-        <View style={{ width: 300, paddingHorizontal: 10 }}>
-          <Text style={{ fontWeight: "bold" }}>
-            All {EXPENSE_CATEGORY_CHOICES[t]} Expenses
-          </Text>
-          {allExpenseItems
-            .filter((s) => s.category === t)
-            .map((s, ind) => (
-              <View
-                key={ind}
-                style={{
-                  flexDirection: "row",
-                  justifyContent: "space-between",
-                }}
-              >
-                <Text style={{ width: 80 }}>{s.dateAdded}</Text>
-                <Text style={{ width: 100 }}>
-                  {s.notes === "" ? "-" : s.notes}
-                </Text>
-                <Text style={{ width: 80 }}>{toMoney(-s.amount)}</Text>
-              </View>
-            ))}
+      )),
+      ...Array.from(Array(16).keys()).map((t, ind) => (
+        <View style={{ flexDirection: "row" }}>
+          <View style={{ width: 300, paddingHorizontal: 10 }}>
+            <Text style={{ fontWeight: "bold" }}>
+              All {EXPENSE_CATEGORY_CHOICES[t]} Expenses
+            </Text>
+            <View>
+              {allExpenseItems
+                .filter((s) => s.category === t)
+                .map((s, ind) => (
+                  <View
+                    key={ind}
+                    style={{
+                      flexDirection: "row",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                    }}
+                  >
+                    <MyIcon
+                      icon="times"
+                      size={15}
+                      onPress={() => expenseStore.deleteItem(s.id)}
+                    />
+                    <Text style={{ width: 80, paddingLeft: 5 }}>
+                      {s.dateAdded}
+                    </Text>
+                    <Text style={{ width: 100 }}>
+                      {s.notes === "" ? "-" : s.notes}
+                    </Text>
+                    <Text style={{ width: 80 }}>{toMoney(-s.amount)}</Text>
+                  </View>
+                ))}
+            </View>
+          </View>
+          <ExpenseForm
+            setVisible={setVisibleForIndex(t + 10)}
+            item={{
+              category: t,
+              dateAdded: moment(month, "YYYY-MM").toISOString(),
+            }}
+          />
         </View>
-        <ExpenseForm
-          setVisible={setVisibleForIndex(t + 10)}
-          item={{ category: t }}
-        />
-      </View>
-    )),
-    <FigureForm
-      title="BPC Treasurer"
-      value={treasurer}
-      onChangeValue={setTreasurer}
-      setVisible={setVisibleForIndex(24)}
-    />,
-    <FigureForm
-      title="BPC Auditor"
-      value={auditor}
-      onChangeValue={setAuditor}
-      setVisible={setVisibleForIndex(25)}
-    />,
-    <FigureForm
-      title="BPC Chairman"
-      value={chairman}
-      onChangeValue={setChairman}
-      setVisible={setVisibleForIndex(26)}
-    />,
-  ];
+      )),
+      <FigureForm
+        title="BPC Treasurer"
+        value={treasurer}
+        onChangeValue={setTreasurer}
+        setVisible={setVisibleForIndex(24)}
+      />,
+      <FigureForm
+        title="BPC Auditor"
+        value={auditor}
+        onChangeValue={setAuditor}
+        setVisible={setVisibleForIndex(25)}
+      />,
+      <FigureForm
+        title="BPC Chairman"
+        value={chairman}
+        onChangeValue={setChairman}
+        setVisible={setVisibleForIndex(26)}
+      />,
+    ];
+  }, [month, incomeStore.items.length, expenseStore.items.length]);
 
   const onPressSubmit = async () => {
     const newReport = {
@@ -362,19 +399,23 @@ export const ReportView = observer(() => {
       endingBalance: parseFloat(begBal) + totalIncome + totalExpense,
     };
 
-    const resp = existingReport
-      ? await reportStore.updateItem(existingReport.id, newReport)
-      : await reportStore.addItem(newReport);
-    if (!resp.ok) {
-      setMsg(resp.details ?? "Error");
-      return;
-    } else {
-      setMsg("Success!");
+    try {
+      const resp = existingReport
+        ? await reportStore.updateItem(existingReport.id, newReport)
+        : await reportStore.addItem(newReport);
+      if (!resp.ok) {
+        setMsg(resp.details ?? "Error");
+        return;
+      } else {
+        setMsg("Success!");
+      }
+    } catch (error) {
+      setMsg(String(error));
     }
   };
 
   return (
-    <View style={{ paddingTop: 10, paddingHorizontal: 20, flex: 1 }}>
+    <View style={{ paddingTop: 5, paddingHorizontal: 10, flex: 1 }}>
       {AllModals.map((s, ind) => (
         <MyModal
           isVisible={isVisible[ind + 1]}
@@ -400,29 +441,30 @@ export const ReportView = observer(() => {
                   ? "space-between"
                   : "flex-start",
                 marginBottom: BOTTOM_GAP2_NUMS.includes(ind)
-                  ? "6%"
+                  ? "1.5%"
                   : BOTTOM_GAP1_NUMS.includes(ind)
-                  ? "3%"
-                  : "0.5%",
+                  ? "1%"
+                  : "0%",
               }}
             >
               {s.map((t, idx) => (
                 <Text
                   onPress={() => {
-                    const index =
-                      VISIBLE_FORM_MAP.findIndex((t) => `${idx}-${ind}` === t) +
-                      4;
-                    setVisible(index, true);
+                    const visIndex = VISIBLE_FORM_MAP.findIndex(
+                      (t) => `${idx}-${ind}` === t
+                    );
+                    const index = visIndex + 4;
+                    visIndex !== -1 && setVisible(index, true);
                   }}
                   key={idx}
                   style={{
                     color:
-                      idx !== 1 && ind !== 35
+                      idx !== 1 && ind !== 37
                         ? "black"
-                        : EDITABLE_NUMS.includes(ind) || ind === 35
+                        : EDITABLE_NUMS.includes(ind) || ind === 37
                         ? "blue"
                         : "black",
-                    fontSize: winWidth * 0.014,
+                    fontSize: winWidth * 0.02,
                     fontFamily: t.includes("₱") ? "monospace" : "serif",
                     fontWeight:
                       idx !== 0
@@ -442,21 +484,14 @@ export const ReportView = observer(() => {
                       : "0%",
                     width: t.includes("₱") ? 200 : undefined,
                     textDecorationLine:
-                      UNDERLINE_NUMS.includes(ind) ||
-                      ([
-                        5,
-                        ...FIXED_LEFT1_NUMS,
-                        ...FIXED_LEFT2_NUMS,
-                        33,
-                      ].includes(ind) &&
-                        idx === 1)
+                      UNDERLINE_NUMS.includes(ind) || t.includes("₱")
                         ? "underline"
                         : "none",
                     left:
                       idx !== 1
                         ? undefined
                         : FIXED_LEFT2_NUMS.includes(ind)
-                        ? "60%"
+                        ? "50%"
                         : FIXED_LEFT1_NUMS.includes(ind)
                         ? TWO_INDENT_NUMS.includes(ind)
                           ? "35%"
@@ -515,7 +550,7 @@ const styles = StyleSheet.create({
     aspectRatio: 1 / 1.294,
     width: "100%",
     borderWidth: 1,
-    padding: "5%",
-    paddingHorizontal: "10%",
+    padding: "2%",
+    paddingHorizontal: "5%",
   },
 });

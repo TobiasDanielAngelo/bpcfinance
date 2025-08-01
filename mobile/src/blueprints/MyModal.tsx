@@ -57,7 +57,8 @@ const styles = StyleSheet.create({
   },
   children: {},
   safeAreaContainer: {
-    width: 600,
+    minWidth: 300,
+    maxWidth: 600,
     maxHeight: "100%",
   },
 });
