@@ -1,8 +1,8 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { PaginatedResponse } from "../constants/interfaces";
 
-// const hostURL = "https://bpc.mathiavelli.com";
-const hostURL = "http://192.168.254.164:8000";
+const hostURL = "https://bpc.mathiavelli.com";
+// const hostURL = "http://192.168.254.164:8000";
 export function autoFormData(body: Record<string, any>) {
   let needsFormData = false;
   const fileExtensionRegex = /\.(jpg|jpeg|png|gif|pdf|docx?|xlsx?|txt)$/i;

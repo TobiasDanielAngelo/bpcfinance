@@ -6,7 +6,7 @@ import { useStore } from "../../api/Store";
 import { MyButton, MyDropdownSelector } from "../../blueprints";
 import { MyModal } from "../../blueprints/MyModal";
 import { MySpeedDial } from "../../blueprints/MySpeedDial";
-import { winWidth } from "../../constants/constants";
+import { winHeight, winWidth } from "../../constants/constants";
 import { useVisible } from "../../constants/hooks";
 import {
   Field,
@@ -92,8 +92,6 @@ const VISIBLE_FORM_MAP = [
   "1-37",
   "2-37",
 ];
-
-console.log(VISIBLE_FORM_MAP);
 
 export const FigureForm = (props: {
   title: string;
@@ -395,8 +393,10 @@ export const ReportView = observer(() => {
       treasurer: treasurer,
       auditor: auditor,
       chairman: chairman,
-      beginningBalance: parseFloat(begBal),
-      endingBalance: parseFloat(begBal) + totalIncome + totalExpense,
+      beginningBalance: Math.round(parseFloat(begBal) * 100) / 100,
+      endingBalance:
+        Math.round((parseFloat(begBal) + totalIncome + totalExpense) * 100) /
+        100,
     };
 
     try {
@@ -415,7 +415,13 @@ export const ReportView = observer(() => {
   };
 
   return (
-    <View style={{ paddingTop: 5, paddingHorizontal: 10, flex: 1 }}>
+    <View
+      style={{
+        paddingTop: 5,
+        paddingHorizontal: 10,
+        flex: 1,
+      }}
+    >
       {AllModals.map((s, ind) => (
         <MyModal
           isVisible={isVisible[ind + 1]}
@@ -464,7 +470,7 @@ export const ReportView = observer(() => {
                         : EDITABLE_NUMS.includes(ind) || ind === 37
                         ? "blue"
                         : "black",
-                    fontSize: winWidth * 0.02,
+                    fontSize: winHeight * 0.036,
                     fontFamily: t.includes("₱") ? "monospace" : "serif",
                     fontWeight:
                       idx !== 0
@@ -528,7 +534,6 @@ export const ReportView = observer(() => {
           </Text>
         </View>
       </ScrollView>
-      {/* <MySpeedDial actions={actions} /> */}
     </View>
   );
 });
@@ -550,7 +555,7 @@ const styles = StyleSheet.create({
     aspectRatio: 1 / 1.294,
     width: "100%",
     borderWidth: 1,
-    padding: "2%",
     paddingHorizontal: "5%",
+    justifyContent: "center",
   },
 });
